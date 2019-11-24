@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">AirlineTicket Booking</string>
+    <string name="choose_your_airline">Choose your Airline</string>
+    <string name="indian_airline">Indian Airline</string>
+    <string name="air_india">Air India</string>
+    <string name="indigo">Indigo</string>
+    <string name="vistara">Vistara</string>
+    <string name="see_the_existing_passengers">See the existing Passengers</string>
+    <string name="join_the_queue">Join the Queue</string>
+    <string name="lets_fly">Lets fly</string>
+</resources>

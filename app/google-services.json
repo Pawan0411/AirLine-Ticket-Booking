@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "697999046988",
+    "firebase_url": "https://airline-ticket-booking-2e013.firebaseio.com",
+    "project_id": "airline-ticket-booking-2e013",
+    "storage_bucket": "airline-ticket-booking-2e013.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:697999046988:android:f8a5e42a811237776df7e9",
+        "android_client_info": {
+          "package_name": "pp.airlineticketbooking"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "697999046988-gvajusdi9hk0k34uqad5hen4okrcs21i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "pp.airlineticketbooking",
+            "certificate_hash": "2ecb499e4260a542f956655a23c5ed53de8e28c7"
+          }
+        },
+        {
+          "client_id": "697999046988-i1au8gvukcvj155qf5mpfn391o60ir0d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOSogSVRzhJZYpYiSESvDsFQ3DzqzLQX8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "697999046988-i1au8gvukcvj155qf5mpfn391o60ir0d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
