@@ -3,10 +3,8 @@ package pp.airlineticketbooking;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +21,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+
 import java.util.Random;
 
 import butterknife.BindView;
@@ -59,10 +58,12 @@ public class Individual_Airline extends AppCompatActivity {
     int nElemns = 0;
     String gender = "";
     int j = 0;
+    int index = 0;
 
     private boolean status;
     //Initialize
     Passenger[] passenger = new Passenger[200];
+    ArrayList<Passenger> passengers = new ArrayList<>();
     CircularQueue[] lines = new CircularQueue[nLines];
     CircularQueue[] sec_lines_male = new CircularQueue[sLines_male];
     CircularQueue[] sec_lines_female = new CircularQueue[sLines_female];
@@ -111,11 +112,9 @@ public class Individual_Airline extends AppCompatActivity {
         for (int i = 0; i < sLines_female; i++) {
             sec_lines_female[i] = new CircularQueue(maxLineLength);
         }
-
-        for (int j = 0; j < lines.length; j++) {
             if (airline_name != null) {
-                int index = j;
-                linesdatabase.child(airline_name).child("line-" + j).addValueEventListener(new ValueEventListener() {
+                index = 0;
+                linesdatabase.child(airline_name).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         // Toast.makeText(Individual_Airline.this, String.valueOf(index), Toast.LENGTH_SHORT).show();
@@ -125,13 +124,22 @@ public class Individual_Airline extends AppCompatActivity {
                             return;
                         }
 
-                        for (DataSnapshot items : dataSnapshot.getChildren()){
-                            Passenger pass = items.getValue(Passenger.class);
-                            passengers_list.add(pass);
-                            lines[index].insertf(pass);
-                            lines[index].display(index);
-                        }
+                        passengers_list.clear();
 
+                        for (DataSnapshot items : dataSnapshot.getChildren()) {
+                            index = 0;
+                            for (DataSnapshot pasengerSnapshot : items.getChildren()) {
+                                Passenger pass = pasengerSnapshot.getValue(Passenger.class);
+                                Individual_Airline.this.lines[index].insertf(pass);
+                                Toast.makeText(Individual_Airline.this, String.valueOf(index) + String.valueOf(lines[index].size()), Toast.LENGTH_SHORT).show();
+                                passengers_list.add(pass);
+                            }
+                        index++;
+                        }
+                        index++;
+                        if (index >= dataSnapshot.getChildrenCount()) {
+                            index = (int) (index - dataSnapshot.getChildrenCount());
+                        }
                         adapter.notifyDataSetChanged();
                     }
                     @Override
@@ -141,7 +149,7 @@ public class Individual_Airline extends AppCompatActivity {
                     }
                 });
             }
-        }
+
         for (int i = 0; i  <sec_lines_male.length; i++){
             int index = i;
                securityChecks.child("Male").addValueEventListener(new ValueEventListener() {
@@ -216,31 +224,28 @@ public class Individual_Airline extends AppCompatActivity {
         }
 
         //when join_queue is selected
-        join_queue.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                time += 1;
-                // Shortest Line
-                int shortestLine = 0;
-                int minSize = lines[0].size();
-                for (int i = 0; i < lines.length; i++) {
-                    if (lines[i].size() < minSize) {
-                        minSize = lines[i].size();
-                        shortestLine = i;
-                    }
+        join_queue.setOnClickListener(view -> {
+//                time += 1;
+            // Shortest Line
+            int shortestLine = 0;
+            int minSize = lines[0].size();
+            for (int i = 0; i < lines.length; i++) {
+                if (lines[i].size() < minSize) {
+                    minSize = lines[i].size();
+                    shortestLine = i;
                 }
-                // Add the Customer to the Shortest Line
-                int items = new Random().nextInt(maxItems) + 1;
-                if (Math.random() > 0.5) {
-                    gender = "M";
-                } else {
-                    gender = "F";
-                }
-                passenger[nElemns] = new Passenger(items, gender);
-                lines[shortestLine].insert(passenger[nElemns], airline_name, shortestLine);
-//                recreate();
-                nElemns++;
             }
+
+            // Add the Customer to the Shortest Line
+            int items = new Random().nextInt(maxItems) + 1;
+            if (Math.random() > 0.5) {
+                gender = "M";
+            } else {
+                gender = "F";
+            }
+            passenger[nElemns] = new Passenger(items, gender);
+            lines[shortestLine].insert(passenger[nElemns], airline_name, shortestLine);
+            nElemns++;
         });
 
         //remove 2luggages at 1min of passage

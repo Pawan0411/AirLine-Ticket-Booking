@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -37,12 +38,8 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull Adapter.ViewHolder holder, int position) {
             Passenger passenger = passengers.get(position);
-
-            int id = (position  + 1) * 100;
-
             holder.gender.setText("Gender : "  +passenger.getGender());
             holder.luggage.setText("Luggage : " + passenger.getLuggage());
-
     }
 
     @Override
@@ -63,6 +60,8 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         TextView luggage;
         @BindView(R.id.cardView)
         CardView cardView;
+        @BindView(R.id.parent_layout)
+        ConstraintLayout parent_layout;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
