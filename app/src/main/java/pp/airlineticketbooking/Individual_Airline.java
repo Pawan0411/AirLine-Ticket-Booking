@@ -21,7 +21,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-
 import java.util.Random;
 
 import butterknife.BindView;
@@ -42,6 +41,8 @@ public class Individual_Airline extends AppCompatActivity {
     Button security;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+    @BindView(R.id.no_passengers)
+    TextView no_passengers;
 
     ArrayList<Passenger> passengers_list = new ArrayList<>();
     private Adapter adapter;
@@ -58,12 +59,10 @@ public class Individual_Airline extends AppCompatActivity {
     int nElemns = 0;
     String gender = "";
     int j = 0;
-    int index = 0;
 
     private boolean status;
     //Initialize
     Passenger[] passenger = new Passenger[200];
-    ArrayList<Passenger> passengers = new ArrayList<>();
     CircularQueue[] lines = new CircularQueue[nLines];
     CircularQueue[] sec_lines_male = new CircularQueue[sLines_male];
     CircularQueue[] sec_lines_female = new CircularQueue[sLines_female];
@@ -112,36 +111,35 @@ public class Individual_Airline extends AppCompatActivity {
         for (int i = 0; i < sLines_female; i++) {
             sec_lines_female[i] = new CircularQueue(maxLineLength);
         }
+//
+//        for (int j = 0; j < lines.length; j++) {
             if (airline_name != null) {
-                index = 0;
+
                 linesdatabase.child(airline_name).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         // Toast.makeText(Individual_Airline.this, String.valueOf(index), Toast.LENGTH_SHORT).show();
-                        progressDialog.dismiss();
-                        if (dataSnapshot.getChildrenCount() == 0){
+
+                        if (dataSnapshot.getChildrenCount() == 0) {
                             // Toast.makeText(Individual_Airline.this, "No data present", Toast.LENGTH_SHORT).show();
+                            no_passengers.setVisibility(View.VISIBLE);
                             return;
                         }
 
-                        passengers_list.clear();
-
-                        for (DataSnapshot items : dataSnapshot.getChildren()) {
-                            index = 0;
-                            for (DataSnapshot pasengerSnapshot : items.getChildren()) {
-                                Passenger pass = pasengerSnapshot.getValue(Passenger.class);
-                                Individual_Airline.this.lines[index].insertf(pass);
-                                Toast.makeText(Individual_Airline.this, String.valueOf(index) + String.valueOf(lines[index].size()), Toast.LENGTH_SHORT).show();
+                        int index = 0;
+                        for (DataSnapshot line : dataSnapshot.getChildren()) {
+                            for (DataSnapshot items : line.getChildren()) {
+                                Passenger pass = items.getValue(Passenger.class);
                                 passengers_list.add(pass);
+                                lines[index].insertf(pass);
+                                // lines[index].display(index);
                             }
-                        index++;
+                            index++;
                         }
-                        index++;
-                        if (index >= dataSnapshot.getChildrenCount()) {
-                            index = (int) (index - dataSnapshot.getChildrenCount());
-                        }
+
                         adapter.notifyDataSetChanged();
                     }
+
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
                         Toast.makeText(Individual_Airline.this, "Data not present", Toast.LENGTH_SHORT).show();
@@ -150,40 +148,42 @@ public class Individual_Airline extends AppCompatActivity {
                 });
             }
 
-        for (int i = 0; i  <sec_lines_male.length; i++){
+        for (int i = 0; i < sec_lines_male.length; i++) {
             int index = i;
-               securityChecks.child("Male").addValueEventListener(new ValueEventListener() {
-                   @Override
-                   public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                       if (dataSnapshot.getChildrenCount() == 0){
-                         //  Toast.makeText(Individual_Airline.this, "No data present", Toast.LENGTH_SHORT).show();
-                             return;
-                       }
-
-                       for (DataSnapshot items : dataSnapshot.getChildren()){
-                           Passenger passenger = items.getValue(Passenger.class);
-                           sec_lines_male[index].insertf(passenger);
-                       }
-                   }
-
-                   @Override
-                   public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                   }
-               });
-        }
-
-        for (int i = 0; i < sec_lines_female.length; i++){
-            int index = i;
-            securityChecks.child("Female").addValueEventListener(new ValueEventListener() {
+            securityChecks.child("Male").child("line-" + i).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.getChildrenCount() == 0){
-                     //   Toast.makeText(Individual_Airline.this, "No data present", Toast.LENGTH_SHORT).show();
+                    if (dataSnapshot.getChildrenCount() == 0) {
+                        //  Toast.makeText(Individual_Airline.this, "No data present", Toast.LENGTH_SHORT).show();
+                        no_passengers.setVisibility(View.VISIBLE);
                         return;
                     }
 
-                    for (DataSnapshot items : dataSnapshot.getChildren()){
+                    for (DataSnapshot items : dataSnapshot.getChildren()) {
+                        Passenger passenger = items.getValue(Passenger.class);
+                        sec_lines_male[index].insertf(passenger);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+
+        for (int i = 0; i < sec_lines_female.length; i++) {
+            int index = i;
+            securityChecks.child("Female").child("line-" + i).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getChildrenCount() == 0) {
+                        //   Toast.makeText(Individual_Airline.this, "No data present", Toast.LENGTH_SHORT).show();
+                        no_passengers.setVisibility(View.VISIBLE);
+                        return;
+                    }
+
+                    for (DataSnapshot items : dataSnapshot.getChildren()) {
                         Passenger passenger = items.getValue(Passenger.class);
                         sec_lines_female[index].insertf(passenger);
                     }
@@ -201,12 +201,13 @@ public class Individual_Airline extends AppCompatActivity {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     progressDialog.dismiss();
-                    if (dataSnapshot.getChildrenCount() == 0){
-                      //  Toast.makeText(Individual_Airline.this, "No data present", Toast.LENGTH_SHORT).show();
+                    if (dataSnapshot.getChildrenCount() == 0) {
+                        //  Toast.makeText(Individual_Airline.this, "No data present", Toast.LENGTH_SHORT).show();
+                        no_passengers.setVisibility(View.VISIBLE);
                         return;
                     }
 
-                    for (DataSnapshot items : dataSnapshot.getChildren()){
+                    for (DataSnapshot items : dataSnapshot.getChildren()) {
                         Passenger pass = items.getValue(Passenger.class);
                         //Toast.makeText(Individual_Airline.this, String.valueOf(pass.getLuggage()), Toast.LENGTH_SHORT).show();
                         passenger[nElemns] = pass;
@@ -224,28 +225,31 @@ public class Individual_Airline extends AppCompatActivity {
         }
 
         //when join_queue is selected
-        join_queue.setOnClickListener(view -> {
-//                time += 1;
-            // Shortest Line
-            int shortestLine = 0;
-            int minSize = lines[0].size();
-            for (int i = 0; i < lines.length; i++) {
-                if (lines[i].size() < minSize) {
-                    minSize = lines[i].size();
-                    shortestLine = i;
+        join_queue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                time += 1;
+                // Shortest Line
+                int shortestLine = 0;
+                int minSize = lines[0].size();
+                for (int i = 0; i < lines.length; i++) {
+                    if (lines[i].size() < minSize) {
+                        minSize = lines[i].size();
+                        shortestLine = i;
+                    }
                 }
+                // Add the Customer to the Shortest Line
+                int items = new Random().nextInt(maxItems) + 1;
+                if (Math.random() > 0.5) {
+                    gender = "M";
+                } else {
+                    gender = "F";
+                }
+                passenger[nElemns] = new Passenger(items, gender);
+                lines[shortestLine].insert(passenger[nElemns], airline_name, shortestLine);
+                recreate();
+                nElemns++;
             }
-
-            // Add the Customer to the Shortest Line
-            int items = new Random().nextInt(maxItems) + 1;
-            if (Math.random() > 0.5) {
-                gender = "M";
-            } else {
-                gender = "F";
-            }
-            passenger[nElemns] = new Passenger(items, gender);
-            lines[shortestLine].insert(passenger[nElemns], airline_name, shortestLine);
-            nElemns++;
         });
 
         //remove 2luggages at 1min of passage
@@ -258,11 +262,13 @@ public class Individual_Airline extends AppCompatActivity {
                         continue;
                     }
                     status = lines[i].decFront(processPerMin, passenger[i], i, airline_name); // decrement item count
+                    recreate();
                     if (status) {
                         //Security Check line
                         String gender = passenger[i].getGender();
-                        int shortestLine = 0;
+                        int shortestLine;
                         if (gender.equals("M")) {
+                            shortestLine = 0;
                             int minSize = sec_lines_male[0].size();
                             for (int j = 0; j < sec_lines_male.length; j++) {
                                 if (sec_lines_male[j].size() < minSize) {
@@ -270,8 +276,10 @@ public class Individual_Airline extends AppCompatActivity {
                                     shortestLine = j;
                                 }
                             }
+                            Toast.makeText(Individual_Airline.this, "male " + shortestLine, Toast.LENGTH_SHORT).show();
                             sec_lines_male[shortestLine].insert_sec(passenger[i], shortestLine);
-                        } else if (gender.equals("F")){
+                        } else if (gender.equals("F")) {
+                            shortestLine = 0;
                             int minSize = sec_lines_female[0].size();
                             for (int j = 0; j < sec_lines_female.length; j++) {
                                 if (sec_lines_female[j].size() < minSize) {
@@ -279,7 +287,8 @@ public class Individual_Airline extends AppCompatActivity {
                                     shortestLine = j;
                                 }
                             }
-                            sec_lines_male[shortestLine].insert_sec(passenger[i], shortestLine);
+                            Toast.makeText(Individual_Airline.this, "female " + shortestLine, Toast.LENGTH_SHORT).show();
+                            sec_lines_female[shortestLine].insert_sec(passenger[i], shortestLine);
                         }
                     }
                 }

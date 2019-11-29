@@ -1,6 +1,7 @@
 package pp.model;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -34,7 +35,7 @@ public class CircularQueue {
 
     public void insert(Passenger val, String airline_name, int shortestLine) {
         if (isFull()) {
-            Log.e("tag", "CUSTOMER CANNOT BE ADDED AS QUEUE IS FULL");
+            Log.e("tag", "CUSTOMER CANNOT BE ADDED AS QUEUE IS FULL insert");
         } else {
             String key;
             if (isEmpty()) {
@@ -66,7 +67,7 @@ public class CircularQueue {
 
     public void insertf(Passenger passenger) {
         if (isFull()) {
-            Log.e("tag", "CUSTOMER CANNOT BE ADDED AS QUEUE IS FULL");
+            Log.e("tag", "CUSTOMER CANNOT BE ADDED AS QUEUE IS FULL insert");
         } else {
             if (isEmpty()) {
                 front = rear = 0;
@@ -81,22 +82,30 @@ public class CircularQueue {
 
     public void insert_sec(Passenger val, int sline) {
         if (isFull()) {
-            Log.e("tag", "CUSTOMER CANNOT BE ADDED AS QUEUE IS FULL");
+            Log.e("tag", "CUSTOMER CANNOT BE ADDED AS QUEUE IS FULL sec");
         } else {
             if (isEmpty()) {
                 front = rear = 0;
                 a[rear] = val.getLuggage();
-                if (val.getGender().equals("M"))
+                if (val.getGender().equals("M")) {
+                    Log.e("line gender" , "M" + sline);
                     securityChecks.child("Male").child("line-" + sline).child(val.getKey()).setValue(val);
-                else
+                }
+                else {
+                    Log.e("line gender" , "F" + sline);
                     securityChecks.child("Female").child("line-" + sline).child(val.getKey()).setValue(val);
+                }
             } else {
                 rear = (rear + 1) % max;
                 a[rear] = val.getLuggage();
-                if (val.getGender().equals("M"))
+                if (val.getGender().equals("M")) {
+                    Log.e("line gender", "M" + sline);
                     securityChecks.child("Male").child("line-" + sline).child(val.getKey()).setValue(val);
-                else
+                }
+                else {
+                    Log.e("line gender" , "F" + sline);
                     securityChecks.child("Female").child("line-" + sline).child(val.getKey()).setValue(val);
+                }
             }
             size++;
         }
@@ -122,7 +131,6 @@ public class CircularQueue {
                         for (DataSnapshot items : dataSnapshot.getChildren()) {
                             Passenger passenger = items.getValue(Passenger.class);
                             if (passenger != null) {
-                                Log.e("data", String.valueOf(passenger.getLuggage()));
                                 //ecreament time by 2 luggages
                                 int luggage = passenger.getLuggage() - 2;
                                 if (luggage <= 0) {
@@ -133,7 +141,6 @@ public class CircularQueue {
                                             .child(passenger.getKey())
                                             .child("luggage").setValue(luggage);
                                 }
-
                             }
                             break;
                         }
@@ -165,7 +172,6 @@ public class CircularQueue {
                         for (DataSnapshot items : dataSnapshot.getChildren()) {
                             Passenger passenger = items.getValue(Passenger.class);
                             if (passenger != null) {
-                                Log.e("data", String.valueOf(passenger.getLuggage()));
                                 //ecreament time by 2 luggages
                                 int luggage = passenger.getLuggage() - 2;
                                 if (luggage <= 0) {
@@ -204,7 +210,6 @@ public class CircularQueue {
                         for (DataSnapshot items : dataSnapshot.getChildren()) {
                             Passenger passenger = items.getValue(Passenger.class);
                             if (passenger != null) {
-                                Log.e("data", String.valueOf(passenger.getLuggage()));
                                 //ecreament time by 2 luggages
                                 int luggage = passenger.getLuggage() - 2;
                                 if (luggage <= 0) {
@@ -232,16 +237,6 @@ public class CircularQueue {
         }
     }
 
-    public void display(int index) {
-        if (!isEmpty()) {
-            int i;
-            for (i = front; i != rear; i = (i + 1) % max) {
-                Log.e("loop" + index, a[i] + "");
-            }
-            Log.e("loop" + index, a[i] + "");
-        }
-        Log.e("empty", "true");
-    }
 
     private boolean isFull() {
         return front == (rear + 1) % max;

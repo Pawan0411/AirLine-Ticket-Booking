@@ -1,11 +1,11 @@
 package pp.airlineticketbooking;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,7 +31,8 @@ public class Security extends AppCompatActivity {
 
     @BindView(R.id.fly)
     Button increament_time;
-
+    @BindView(R.id.no_passengers)
+    TextView no_passengers;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
 
@@ -45,6 +46,8 @@ public class Security extends AppCompatActivity {
     CircularQueue[] sec_lines_female = new CircularQueue[sLines_female];
 
     ArrayList<Passenger> passengers_list = new ArrayList<>();
+    ArrayList<Passenger> passengers_list_male = new ArrayList<>();
+    ArrayList<Passenger> passengers_list_female = new ArrayList<>();
     private Adapter adapter;
 
     private ProgressDialog progressDialog;
@@ -78,63 +81,77 @@ public class Security extends AppCompatActivity {
         }
 
 
-        for (int i = 0; i < 4; i++) {
-            int index = i;
-            securityChecks
-                    .child("Female")
-                    .child("line-" + i)
-                    .addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            passengers_list.clear();
+        securityChecks
+                .child("Female")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                            if (dataSnapshot.getChildrenCount() == 0) {
-                                Log.e("error", "No data present");
-                                progressDialog.dismiss();
-                                return;
-                            }
+                        passengers_list_female.clear();
+                        passengers_list.clear();
+                        if (dataSnapshot.getChildrenCount() == 0) {
+                            Log.e("error", "No data present");
+                            no_passengers.setVisibility(View.VISIBLE);
+                            return;
+                        }
 
-                            for (DataSnapshot items : dataSnapshot.getChildren()) {
+                        int index = 0;
+                        for (DataSnapshot line : dataSnapshot.getChildren()) {
+                            for (DataSnapshot items : line.getChildren()) {
                                 Passenger pass = items.getValue(Passenger.class);
 
-                                passengers_list.add(pass);
+                                //passengers_list.add(pass);
+                                passengers_list_female.add(pass);
                                 sec_lines_female[index].insertf(pass);
-                                progressDialog.dismiss();
+                                // progressDialog.dismiss();
                             }
+                            index++;
+                        }
+                        passengers_list.addAll(passengers_list_female);
+                        passengers_list.addAll(passengers_list_male);
+                        adapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
+        securityChecks
+                .child("Male")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        passengers_list_male.clear();
+                        passengers_list.clear();
+                        if (dataSnapshot.getChildrenCount() == 0) {
+                            Log.e("error", "No data present");
+                            no_passengers.setVisibility(View.VISIBLE);
+                            return;
                         }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    });
-            securityChecks
-                    .child("Male")
-                    .child("line-" + i)
-                    .addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.getChildrenCount() == 0) {
-                                Log.e("error", "No data present");
-                                progressDialog.dismiss();
-                                return;
-                            }
-
-                            for (DataSnapshot items : dataSnapshot.getChildren()) {
+                        int index = 0;
+                        for (DataSnapshot line : dataSnapshot.getChildren()) {
+                            for (DataSnapshot items : line.getChildren()) {
                                 Passenger pass = items.getValue(Passenger.class);
 
-                                passengers_list.add(pass);
+                                passengers_list_male.add(pass);
                                 sec_lines_male[index].insertf(pass);
                                 progressDialog.dismiss();
                             }
+                            index++;
                         }
+                        passengers_list.addAll(passengers_list_female);
+                        passengers_list.addAll(passengers_list_male);
+                        adapter.notifyDataSetChanged();
+                    }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                        }
-                    });
-        }
+                    }
+                });
         increament_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
